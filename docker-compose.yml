@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+ # wordpress:
+  #  image: "wordpress:php8.3-apache"
+   # environment:
+    #  WORDPRESS_DB_HOST: mariadb-master
+     # WORDPRESS_DB_USER: wordpress
+  #    WORDPRESS_DB_PASSWORD: wordpresspassword
+   #   WORDPRESS_DB_NAME: wordpress
+   # depends_on:
+    #  - mariadb-master
+
+  mariadb-master:
+    image: "mariadb:11.2-master-slave"
+    build: .
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpresspassword
+      # The master node cannot be replicated.
+      MARIADB_ROLE: master
+    volumes:
+      - mariadb-master:/var/lib/mysql
+      - wordpress-temp-db:/tmp/mysql-backup
+
+  mariadb-slave:
+    # We use the same custom image
+    image: "mariadb:11.2-master-slave"
+    build: .
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+#      MARIADB_DATABASE: wordpress
+#      MARIADB_USER: wordpress
+#      MARIADB_PASSWORD: wordpresspassword
+      # Role must be assiged to slave
+      MARIADB_ROLE: slave
+    volumes:
+      - mariadb-slave:/var/lib/mysql
+      - wordpress-temp-db:/tmp/mysql-backup
+    depends_on:
+      - mariadb-master
+
+volumes:
+    mariadb-master:
+    mariadb-slave:
+    wordpress-temp-db:
