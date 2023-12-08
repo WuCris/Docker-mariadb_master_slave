@@ -31,9 +31,6 @@ services:
     build: .
     environment:
       MARIADB_ROOT_PASSWORD: rootpassword
-#      MARIADB_DATABASE: wordpress
-#      MARIADB_USER: wordpress
-#      MARIADB_PASSWORD: wordpresspassword
       # Role must be assiged to slave
       MARIADB_ROLE: slave
     volumes:
