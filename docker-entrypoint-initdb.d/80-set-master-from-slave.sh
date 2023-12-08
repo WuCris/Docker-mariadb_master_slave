@@ -2,23 +2,26 @@
 #!/bin/bash
 set -e
 
+if [ $MARIADB_ROLE = "master" ]; then
+echo "Creating replication user and backup of Master"
+mariadb -uroot -p$MARIADB_ROOT_PASSWORD \
+    --execute="CREATE USER 'replication_user'@'%' IDENTIFIED BY 'DVvh5lnR1iqok1CV0cAd'; \
+    GRANT REPLICATION SLAVE ON *.* TO 'replication_user'@'%'; FLUSH PRIVILEGES; FLUSH TABLES WITH READ LOCK;"
+fi
+
 if [ $MARIADB_ROLE = "slave" ]; then
 
 echo "Setting server ID on slave to 2"
+# Set global to take effect during temporary server.
 mariadb -uroot -p$MARIADB_ROOT_PASSWORD \
     --execute="SET GLOBAL server_id = 2;"
+# These settings won't apply until entrypoint exists and temporary server is stopped.
 sed -i 's/server_id=1/server_id=2/g' /etc/mysql/mariadb.conf.d/80-master-or-slave.cnf
-
 
 # Configuring the master node. We run this from the slave to allow a chronological 
 # order of opperations so the slave cannot proceed until master is configured.
 
-echo "Creating replication user and backup of Master"
-
-mariadb -uroot -p$MARIADB_ROOT_PASSWORD -h mariadb-master \
-    --execute="CREATE USER 'replication_user'@'%' IDENTIFIED BY 'DVvh5lnR1iqok1CV0cAd'; \
-    GRANT REPLICATION SLAVE ON *.* TO 'replication_user'@'%'; FLUSH TABLES WITH READ LOCK;"
-
+sleep 10s # Give master time to initialize
 mariadb-dump -uroot -p$MARIADB_ROOT_PASSWORD -h mariadb-master --all-databases --master-data > /tmp/mariadb-backup/master_initialization.sql
 
 
@@ -35,8 +38,8 @@ mariadb -uroot -p$MARIADB_ROOT_PASSWORD \
                     MASTER_PASSWORD='DVvh5lnR1iqok1CV0cAd',\
                     MASTER_PORT=3306,\
                     MASTER_LOG_FILE='master1-bin.000002',\
-                    MASTER_LOG_POS=689,\
-                    MASTER_USE_GTID = slave_pos,\
+                    MASTER_USE_GTID=slave_pos,\
+                    MASTER_LOG_POS=344,\
                     MASTER_CONNECT_RETRY=10;"
 
 echo "Start slave"
