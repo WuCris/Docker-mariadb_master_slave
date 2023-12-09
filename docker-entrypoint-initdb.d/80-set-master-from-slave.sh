@@ -15,8 +15,10 @@ if [ $MARIADB_ROLE = "slave" ]; then
     # Set global to take effect during temporary server.
     mariadb -uroot -p$MARIADB_ROOT_PASSWORD \
         --execute="SET GLOBAL server_id = 2;"
+
     # These settings won't apply until entrypoint exits and temporary server is stopped.
     sed -i 's/server_id=1/server_id=2/g' /etc/mysql/mariadb.conf.d/80-master-or-slave.cnf
+    echo -e "\nread-only=1" >> /etc/mysql/mariadb.conf.d/80-master-or-slave.cnf
 
     sleep 10s # Give master time to initialize
     mariadb-dump -uroot -p$MARIADB_ROOT_PASSWORD -h mariadb-master --all-databases --master-data > /tmp/mariadb-backup/master_initialization.sql
