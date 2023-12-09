@@ -21,11 +21,12 @@ if [ $MARIADB_ROLE = "slave" ]; then
     echo -e "\nread-only=1" >> /etc/mysql/mariadb.conf.d/80-master-or-slave.cnf
 
     sleep 10s # Give master time to initialize
-    mariadb-dump -uroot -p$MARIADB_ROOT_PASSWORD -h mariadb-master --all-databases --master-data > /tmp/mariadb-backup/master_initialization.sql
+    echo "Backing up master host"
+    mariadb-dump -uroot -p$MARIADB_ROOT_PASSWORD -h mariadb-master --all-databases --master-data | zstd > /tmp/mariadb-backup/master_initialization.sql.zstd
 
 
     echo "Importing master database to slave"
-    mariadb -uroot -p$MARIADB_ROOT_PASSWORD < /tmp/mariadb-backup/master_initialization.sql
+    zstd -d < /tmp/mariadb-backup/master_initialization.sql.zstd | mariadb -uroot -p$MARIADB_ROOT_PASSWORD
 
     sleep 10s
 
