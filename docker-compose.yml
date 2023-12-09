@@ -25,7 +25,6 @@ services:
       MARIADB_ROLE: master
     volumes:
       - mariadb-master:/var/lib/mysql
-      - wordpress-temp-db:/tmp/mysql-backup
 
   mariadb-slave:
     # We use the same custom image
@@ -37,11 +36,9 @@ services:
       MARIADB_ROLE: slave
     volumes:
       - mariadb-slave:/var/lib/mysql
-      - wordpress-temp-db:/tmp/mysql-backup
     depends_on:
       - mariadb-master
 
 volumes:
     mariadb-master:
     mariadb-slave:
-    wordpress-temp-db:
