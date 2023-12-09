@@ -6,7 +6,7 @@ if [ $MARIADB_ROLE = "master" ]; then
     echo "Creating replication user and backup of Master"
     mariadb -uroot -p$MARIADB_ROOT_PASSWORD \
         --execute="CREATE USER 'replication_user'@'%' IDENTIFIED BY 'DVvh5lnR1iqok1CV0cAd'; \
-        GRANT REPLICATION SLAVE ON *.* TO 'replication_user'@'%'; FLUSH PRIVILEGES; FLUSH TABLES WITH READ LOCK;"
+        GRANT REPLICATION SLAVE ON *.* TO 'replication_user'@'%'; FLUSH PRIVILEGES; FLUSH TABLES WITH READ LOCK;" 
 fi
 
 if [ $MARIADB_ROLE = "slave" ]; then
@@ -25,6 +25,8 @@ if [ $MARIADB_ROLE = "slave" ]; then
     echo "Importing master database to slave"
     mariadb -uroot -p$MARIADB_ROOT_PASSWORD < /tmp/mariadb-backup/master_initialization.sql
 
+    sleep 10s
+
     echo "Setting replication host on slave"
     mariadb -uroot -p$MARIADB_ROOT_PASSWORD \
         --execute="CHANGE MASTER TO \
@@ -33,7 +35,6 @@ if [ $MARIADB_ROLE = "slave" ]; then
                         MASTER_PASSWORD='DVvh5lnR1iqok1CV0cAd',\
                         MASTER_PORT=3306,\
                         MASTER_LOG_FILE='master1-bin.000002',\
-                        MASTER_USE_GTID=slave_pos,\
                         MASTER_LOG_POS=344,\
                         MASTER_CONNECT_RETRY=10;"
 

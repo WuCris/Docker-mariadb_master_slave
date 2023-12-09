@@ -1,15 +1,17 @@
 version: "3"
 
 services:
- # wordpress:
+  #wordpress:
   #  image: "wordpress:php8.3-apache"
-   # environment:
-    #  WORDPRESS_DB_HOST: mariadb-master
-     # WORDPRESS_DB_USER: wordpress
-  #    WORDPRESS_DB_PASSWORD: wordpresspassword
-   #   WORDPRESS_DB_NAME: wordpress
-   # depends_on:
-    #  - mariadb-master
+  #  environment:
+  #     WORDPRESS_DB_HOST: mariadb-master
+  #     WORDPRESS_DB_USER: wordpress
+  #     WORDPRESS_DB_PASSWORD: wordpresspassword
+  #     WORDPRESS_DB_NAME: wordpress
+  #  ports: 
+  #    - 5050:80
+  #  depends_on:
+  #    - mariadb-master
 
   mariadb-master:
     image: "mariadb:11.2-master-slave"
