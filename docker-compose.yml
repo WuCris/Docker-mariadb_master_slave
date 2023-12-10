@@ -21,6 +21,7 @@ services:
       MARIADB_DATABASE: wordpress
       MARIADB_USER: wordpress
       MARIADB_PASSWORD: wordpresspassword
+      DB_REPLICATION_PASS: HqAzZkePY6zSERA8XG9FLt
       # The master node cannot be replicated.
       MARIADB_ROLE: master
     volumes:
@@ -32,6 +33,8 @@ services:
     build: .
     environment:
       MARIADB_ROOT_PASSWORD: rootpassword
+      DB_REPLICATION_PASS: HqAzZkePY6zSERA8XG9FLt
+      DB_MASTER_HOST: mariadb-master
       # Role must be assiged to slave
       MARIADB_ROLE: slave
     volumes:
