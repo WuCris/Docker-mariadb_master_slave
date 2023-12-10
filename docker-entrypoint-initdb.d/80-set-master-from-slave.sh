@@ -42,7 +42,11 @@ if [ $MARIADB_ROLE = "slave" ]; then
                         MASTER_CONNECT_RETRY=10;"
 
     echo "Start slave"
-    mariadb -uroot -p$MARIADB_ROOT_PASSWORD --execute="START SLAVE; SHOW SLAVE STATUS \G"
+    mariadb -uroot -p$MARIADB_ROOT_PASSWORD --execute="START SLAVE;"
+
+    # GTID must be enabled after intial connection to prevent user creation error
+    echo "Enabling GTID and restarting slave"
+    mariadb -uroot -p$MARIADB_ROOT_PASSWORD --execute="STOP SLAVE; CHANGE MASTER TO master_use_gtid = slave_pos; START SLAVE; SHOW SLAVE STATUS \G"
 
     # Unlock tables on master only after slave is configured
     mariadb -uroot -p$MARIADB_ROOT_PASSWORD -h mariadb-master \
