@@ -4,44 +4,46 @@ services:
   #wordpress:
   #  image: "wordpress:php8.3-apache"
   #  environment:
-  #     WORDPRESS_DB_HOST: mariadb-master
+  #     WORDPRESS_DB_HOST: mysql-master
   #     WORDPRESS_DB_USER: wordpress
   #     WORDPRESS_DB_PASSWORD: wordpresspassword
   #     WORDPRESS_DB_NAME: wordpress
   #  ports: 
   #    - 5050:80
   #  depends_on:
-  #    - mariadb-master
+  #    - mysql-master
 
-  mariadb-master:
-    image: "mariadb:11.2-master-slave"
+  mysql-master:
+    image: "mysql:8-master-slave"
     build: .
     environment:
-      MARIADB_ROOT_PASSWORD: rootpassword
-      MARIADB_DATABASE: wordpress
-      MARIADB_USER: wordpress
-      MARIADB_PASSWORD: wordpresspassword
-      DB_REPLICATION_PASS: HqAzZkePY6zSERA8XG9FLt
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpresspassword
+      MYSQL_REPLICATION_PASS: HqAzZkePY6zSERA8XG9FLt
       # The master node cannot be replicated.
-      MARIADB_ROLE: master
+      MYSQL_ROLE: master
+    command: --server_id=1
     volumes:
-      - mariadb-master:/var/lib/mysql
+      - mysql-master:/var/lib/mysql
 
-  mariadb-slave:
+  mysql-slave:
     # We use the same custom image
-    image: "mariadb:11.2-master-slave"
+    image: "mysql:8-master-slave"
     build: .
     environment:
-      MARIADB_ROOT_PASSWORD: rootpassword
-      DB_REPLICATION_PASS: HqAzZkePY6zSERA8XG9FLt
-      DB_MASTER_HOST: mariadb-master
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_REPLICATION_PASS: HqAzZkePY6zSERA8XG9FLt
+      MYSQL_MASTER_HOST: mysql-master
       # Role must be assiged to slave
-      MARIADB_ROLE: slave
+      MYSQL_ROLE: slave
+    command: --server_id=2
     volumes:
-      - mariadb-slave:/var/lib/mysql
+      - mysql-slave:/var/lib/mysql
     depends_on:
-      - mariadb-master
+      - mysql-master
 
 volumes:
-    mariadb-master:
-    mariadb-slave:
+    mysql-master:
+    mysql-slave:

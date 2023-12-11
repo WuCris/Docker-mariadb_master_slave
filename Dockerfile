@@ -1,8 +1,8 @@
-FROM mariadb:11.2
+FROM mysql:8
 
 COPY docker-entrypoint-initdb.d/ /docker-entrypoint-initdb.d/
-COPY mariadb-conf.d/ /etc/mysql/mariadb.conf.d/
+COPY mysql-conf.d/ /etc/mysql/conf.d/
 
 RUN chmod -R 555 /docker-entrypoint-initdb.d/ \
-   && mkdir -p /tmp/mariadb-backup /var/log/mysql \
-   && chown -R mysql:mysql /etc/mysql/mariadb.conf.d /var/log/mysql /tmp/mariadb-backup
+   && mkdir -p /tmp/mysql-backup /var/log/mysql \
+   && chown -R mysql:mysql /etc/mysql/conf.d /var/log/mysql /tmp/mysql-backup
